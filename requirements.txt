@@ -3,3 +3,4 @@ uvicorn
 pillow
 cloudinary
 python-dotenv
+psutil
