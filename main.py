@@ -25,7 +25,8 @@ app = FastAPI()
 RESIZE_PRESETS = {
     "portrait": (864, 1080),
     "square": (1080, 1080),
-    "profile": (110, 110)
+    "profile": (110, 110),
+    "landscape": (1080, 608)
 }
 
 executor = ThreadPoolExecutor(max_workers=10)
