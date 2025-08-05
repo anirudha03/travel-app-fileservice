@@ -15,7 +15,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-MAX_UPLOAD_SIZE = 50 * 1024 * 1024  # 50 MB
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024 
 
 class LimitUploadSizeMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -38,7 +38,7 @@ app = FastAPI()
 app.add_middleware(LimitUploadSizeMiddleware)
 
 RESIZE_PRESETS = {
-    "portrait": (864, 1080),
+    "portrait": (864, 1080 ),
     "square": (1080, 1080),
     "profile": (110, 110),
     "landscape": (1080, 608)
@@ -96,10 +96,15 @@ async def upload_image(
             detail=f"Invalid image_type. Choose one of {list(RESIZE_PRESETS.keys())}"
         )
 
+    # ✅ Read and resize before uploading
+    contents = await file.read()
+    buffer = await asyncio.get_event_loop().run_in_executor(
+        executor, process_image_sync, contents, RESIZE_PRESETS[image_type]
+    )
+
     try:
-        # Directly stream to Cloudinary (no full memory read)
         result = cloudinary.uploader.upload(
-            file.file,  # use the file-like object
+            buffer,
             resource_type="image",
             folder="standardized_uploads",
             overwrite=False,
